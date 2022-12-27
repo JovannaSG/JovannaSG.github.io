@@ -1,0 +1,22 @@
+table {
+    border: solid black 2px;
+    letter-spacing: 0;
+    padding: 5;
+}
+
+td {
+    border: solid black 1px;
+}
+
+tr {
+    text-align: center;
+}
+
+ul {
+    list-style: none;
+}
+
+.name {
+    font-size: large;
+    font-weight: bold;
+}

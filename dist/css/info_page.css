@@ -1,0 +1,30 @@
+ul {
+    list-style-type: none;
+}
+
+img {
+    width: 600px;
+    height: 300px;
+    min-width: 280px;
+}
+
+div {
+    display: flex;
+}
+
+.name {
+    font-size: large;
+    font-weight: bold;
+}
+
+@media (max-width: 800px) {
+    div {
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    div img {
+        width: 100%;
+        height: auto;
+    }
+}
