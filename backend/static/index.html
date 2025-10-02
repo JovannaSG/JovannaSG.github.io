@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мой Список Задач в Telegram</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>📝 Мой Список Задач</h1>
+      <p>Добро пожаловать в ваш персональный планировщик!</p>
+    </header>
+
+    <div class="add-task-section">
+      <input type="text" id="taskInput" placeholder="Введите новую задачу...">
+      <button id="addTaskBtn">Добавить</button>
+    </div>
+
+    <div id="tasksList" class="tasks-list">
+      <!-- Задачи будут добавляться сюда -->
+    </div>
+
+    <div class="stats">
+      Всего задач: <span id="totalTasks">0</span> |
+      Выполнено: <span id="completedTasks">0</span>
+    </div>
+  </div>
+
+  <script src="telegram-app.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

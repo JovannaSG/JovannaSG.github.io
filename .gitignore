@@ -1,6 +1,14 @@
-__pycache__/
-.idea/
-venv/
-.venv/
-.vscode/
-.env
+# Виртуальное окружение
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+
+# Файл с задачами (если не хотите коммитить данные)
+backend/tasks.json
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
