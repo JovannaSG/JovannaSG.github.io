@@ -1,10 +1,4 @@
-# Виртуальное окружение
 backend/.venv/
 backend/__pycache__/
 backend/*.pyc
-
-# Файл с задачами (если не хотите коммитить данные)
 backend/tasks.json
-
-# Логи
-*.log
