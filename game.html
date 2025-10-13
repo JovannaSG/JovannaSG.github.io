@@ -12,15 +12,21 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .game-container {
-      text-align: center;
-      max-width: 500px;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      border-radius: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      margin: 1rem auto;
+      position: relative; /* Это важно! */
+      /* Остальные ваши стили... */
+    }
+
+    .game-container::before {
+      content: " "; /* Обязательное свойство для отображения псевдоэлемента */
+      display: block;
+      position: absolute; /* Позиционирование поверх фона */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1; /* Убедитесь, что этот слой выше фона, но ниже игровых ячеек */
+      background-color: rgba(0, 0, 0, 0.2); /* Черный цвет с 30% непрозрачностью */
+      /* Можно использовать любой цвет (rgba(255, 255, 255, 0.3) для белой дымки и т.д.) */
     }
 
     .game-title {
