@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Для Самой Особенной 💫</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js?2"></script>
+</head>
+
+<body>
+  <!-- Анимированный фон -->
+  <div class="animated-bg">
+    <div class="bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+    </div>
+  </div>
+
+  <!-- Главный контент -->
+  <div class="container">
+    <!-- Аватары с анимацией -->
+    <div class="avatar-container">
+      <div class="avatar-frame">
+        <div class="avatar" id="mainAvatar">
+          <i class="fas fa-heart"></i>
+        </div>
+        <div class="avatar-glow"></div>
+      </div>
+    </div>
+
+    <!-- Основной текст с сложной анимацией -->
+    <div class="text-container">
+      <h1 class="main-title">
+        <span class="title-word title-word-1">Ты</span>
+        <span class="title-word title-word-2">умничка</span>
+        <span class="title-word title-word-3">!!!</span>
+      </h1>
+      <p class="subtitle" id="subtitle">И вообще ты самая лучшая! 🌸</p>
+    </div>
+
+    <!-- Интерактивные кнопки -->
+    <div class="buttons-container">
+    <!-- Существующие кнопки -->
+    <button class="magic-btn" id="magicBtn">
+        <span class="btn-text">Волшебство ✨</span>
+        <div class="btn-shine"></div>
+    </button>
+    
+    <button class="love-btn" id="loveBtn">
+        <i class="fas fa-heart"></i>
+        <span>Отправить любовь</span>
+    </button>
+
+    <!-- Новая кнопка для игры -->
+    <a href="game.html" class="game-link">
+        <button class="magic-btn" style="background: linear-gradient(135deg, #c77dff, #48cae4);">
+            <span class="btn-text">Сыграть в игру 🎮</span>
+            <div class="btn-shine"></div>
+        </button>
+    </a>
+</div>
+
+    <!-- Статистика комплиментов -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-number" id="complimentCount">0</div>
+        <div class="stat-label">комплиментов</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="smileCount">0</div>
+        <div class="stat-label">улыбок</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Конфетти -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Плавающие элементы -->
+  <div class="floating-elements">
+    <div class="floating-element fe-1">💖</div>
+    <div class="floating-element fe-2">✨</div>
+    <div class="floating-element fe-3">🌸</div>
+    <div class="floating-element fe-4">🌟</div>
+    <div class="floating-element fe-5">🥰</div>
+  </div>
+
+  <!-- Модальное окно -->
+  <div class="modal" id="surpriseModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Секретное сообщение! 💌</h2>
+        <button class="close-modal" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="secretMessage">Каждый день с тобой - это праздник! Ты делаешь мир ярче просто своим присутствием. 💫</p>
+        <div class="message-heart">💝</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

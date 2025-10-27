@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Три в ряд для Умнички! 💫</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .game-container {
+      text-align: center;
+      max-width: 500px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin: 1rem auto;
+    }
+
+    .game-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 1rem;
+      text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 1.5rem 0;
+      color: white;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      margin: 1.5rem auto;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 15px;
+    }
+
+    .game-cell {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+      user-select: none;
+    }
+
+    .game-cell.selected {
+      transform: scale(0.9);
+      box-shadow: 0 0 0 3px var(--gold);
+    }
+
+    .game-cell.matched {
+      animation: matchedAnimation 0.6s ease;
+    }
+
+    @keyframes matchedAnimation {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .game-controls {
+      margin: 1.5rem 0;
+    }
+
+    .game-button {
+      background: linear-gradient(135deg, var(--gold), var(--primary-pink));
+      border: none;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .game-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 209, 102, 0.4);
+    }
+
+    .compliment-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, var(--primary-pink), var(--purple));
+      color: white;
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      transition: all 0.5s ease;
+    }
+
+    .compliment-message.show {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .message-heart {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: heartBeat 1s ease-in-out;
+    }
+
+    @keyframes heartBeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.3);
+      }
+    }
+
+    .back-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    /* Адаптивность для мобильных устройств */
+    @media (max-width: 768px) {
+      .game-container {
+        padding: 1rem;
+        margin: 0.5rem;
+      }
+
+      .game-title {
+        font-size: 2.5rem;
+      }
+
+      .game-board {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 2px;
+        max-width: 100%;
+      }
+
+      .game-cell {
+        font-size: 1.2rem;
+        border-radius: 8px;
+      }
+
+      .game-button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        margin: 5px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .game-title {
+        font-size: 2rem;
+      }
+
+      .game-board {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 1px;
+      }
+
+      .game-cell {
+        font-size: 1rem;
+        border-radius: 6px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Анимированный фон -->
+  <div class="animated-bg">
+    <div class="bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+    </div>
+  </div>
+
+  <!-- Контейнер игры -->
+  <div class="game-container">
+    <h1 class="game-title">Три в ряд! 💖</h1>
+
+    <div class="game-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="score">0</div>
+        <div>Очки</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="combinations">0</div>
+        <div>Комбинации</div>
+      </div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="game-controls">
+      <button class="game-button" id="hintButton">Подсказка 💡</button>
+      <button class="game-button" id="restartButton">Заново 🔄</button>
+    </div>
+
+    <a href="index.html" class="back-button">
+      <i class="fas fa-arrow-left"></i> Вернуться назад
+    </a>
+  </div>
+
+  <!-- Сообщение с комплиментом -->
+  <div class="compliment-message" id="complimentMessage">
+    <div class="message-heart">💖</div>
+    <h3 id="complimentText">Молодец! Ты просто умничка! ✨</h3>
+  </div>
+
+  <!-- Плавающие элементы -->
+  <div class="floating-elements">
+    <div class="floating-element fe-1">💖</div>
+    <div class="floating-element fe-2">✨</div>
+    <div class="floating-element fe-3">🌟</div>
+    <div class="floating-element fe-4">🎀</div>
+    <div class="floating-element fe-5">💕</div>
+  </div>
+
+  <script>
+    class Match3Game {
+      constructor() {
+        this.boardSize = 8;
+        this.cellTypes = ['💖', '✨', '🌟', '🎀', '💕', '🌸'];
+        this.board = [];
+        this.selectedCell = null;
+        this.score = 0;
+        this.combinations = 0;
+        this.isSwapping = false;
+
+        this.compliments = [
+          "Молодец! Ты просто умничка! ✨",
+          "Великолепно! Ты справляешься просто прекрасно! 💫",
+          "Потрясающе! У тебя отлично получается! 🌸",
+          "Браво! Твои навыки впечатляют! 💖",
+          "Замечательно! Ты находишь лучшие комбинации! 🌟",
+          "Идеально! Ты рождена для этой игры! 💕",
+          "Превосходно! Твоя стратегия работает безупречно! 🎀",
+          "Фантастика! Ты делаешь это так легко и изящно! ✨"
+        ];
+
+        this.init();
+      }
+
+      init() {
+        this.createBoard();
+        this.renderBoard();
+        this.setupEventListeners();
+        this.updateStats();
+      }
+
+      createBoard() {
+        this.board = [];
+        for (let i = 0; i < this.boardSize; i++) {
+          this.board[i] = [];
+          for (let j = 0; j < this.boardSize; j++) {
+            this.board[i][j] = this.getRandomCellType();
+          }
+        }
+
+        // Убедимся, что на доске нет начальных комбинаций
+        while (this.findAllMatches().length > 0) {
+          this.shuffleBoard();
+        }
+      }
+
+      getRandomCellType() {
+        return this.cellTypes[Math.floor(Math.random() * this.cellTypes.length)];
+      }
+
+      renderBoard() {
+        const gameBoard = document.getElementById('gameBoard');
+        gameBoard.innerHTML = '';
+
+        for (let i = 0; i < this.boardSize; i++) {
+          for (let j = 0; j < this.boardSize; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'game-cell';
+            cell.textContent = this.board[i][j];
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+
+            cell.addEventListener('click', () => this.handleCellClick(i, j));
+
+            gameBoard.appendChild(cell);
+          }
+        }
+      }
+
+      setupEventListeners() {
+        document.getElementById('hintButton').addEventListener('click', () => {
+          this.showHint();
+        });
+
+        document.getElementById('restartButton').addEventListener('click', () => {
+          this.restartGame();
+        });
+      }
+
+      handleCellClick(row, col) {
+        if (this.isSwapping) return;
+
+        const cellElement = this.getCellElement(row, col);
+
+        if (!this.selectedCell) {
+          // Первое выделение
+          this.selectedCell = { row, col };
+          cellElement.classList.add('selected');
+        } else {
+          // Второе выделение - попытка обмена
+          const firstCell = this.selectedCell;
+
+          // Проверяем, являются ли ячейки соседями
+          if (this.areNeighbors(firstCell.row, firstCell.col, row, col)) {
+            this.swapCells(firstCell.row, firstCell.col, row, col);
+          }
+
+          // Снимаем выделение в любом случае
+          this.getCellElement(firstCell.row, firstCell.col).classList.remove('selected');
+          this.selectedCell = null;
+        }
+      }
+
+      areNeighbors(row1, col1, row2, col2) {
+        const rowDiff = Math.abs(row1 - row2);
+        const colDiff = Math.abs(col1 - col2);
+        return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+      }
+
+      swapCells(row1, col1, row2, col2) {
+        this.isSwapping = true;
+
+        // Меняем местами значения на доске
+        const temp = this.board[row1][col1];
+        this.board[row1][col1] = this.board[row2][col2];
+        this.board[row2][col2] = temp;
+
+        this.renderBoard();
+
+        // Проверяем, образовались ли комбинации
+        setTimeout(() => {
+          const matches = this.findAllMatches();
+          if (matches.length > 0) {
+            this.processMatches(matches);
+          } else {
+            // Если комбинаций нет, возвращаем обратно
+            const temp = this.board[row1][col1];
+            this.board[row1][col1] = this.board[row2][col2];
+            this.board[row2][col2] = temp;
+            this.renderBoard();
+          }
+          this.isSwapping = false;
+        }, 300);
+      }
+
+      findAllMatches() {
+        const matches = [];
+
+        // Проверяем горизонтальные совпадения
+        for (let i = 0; i < this.boardSize; i++) {
+          for (let j = 0; j < this.boardSize - 2; j++) {
+            if (this.board[i][j] !== '' &&
+              this.board[i][j] === this.board[i][j + 1] &&
+              this.board[i][j] === this.board[i][j + 2]) {
+
+              // Находим всю последовательность
+              let k = j + 3;
+              while (k < this.boardSize && this.board[i][j] === this.board[i][k]) {
+                k++;
+              }
+
+              const match = [];
+              for (let l = j; l < k; l++) {
+                match.push({ row: i, col: l });
+              }
+              matches.push(match);
+              j = k - 1;
+            }
+          }
+        }
+
+        // Проверяем вертикальные совпадения
+        for (let j = 0; j < this.boardSize; j++) {
+          for (let i = 0; i < this.boardSize - 2; i++) {
+            if (this.board[i][j] !== '' &&
+              this.board[i][j] === this.board[i + 1][j] &&
+              this.board[i][j] === this.board[i + 2][j]) {
+
+              // Находим всю последовательность
+              let k = i + 3;
+              while (k < this.boardSize && this.board[i][j] === this.board[k][j]) {
+                k++;
+              }
+
+              const match = [];
+              for (let l = i; l < k; l++) {
+                match.push({ row: l, col: j });
+              }
+              matches.push(match);
+              i = k - 1;
+            }
+          }
+        }
+
+        return matches;
+      }
+
+      processMatches(matches) {
+        // Показываем комплимент для каждой комбинации
+        matches.forEach((match, index) => {
+          setTimeout(() => {
+            this.showCompliment();
+            this.combinations++;
+            this.score += match.length * 10;
+            this.updateStats();
+
+            // Подсвечиваем совпавшие ячейки
+            match.forEach(cell => {
+              const cellElement = this.getCellElement(cell.row, cell.col);
+              cellElement.classList.add('matched');
+            });
+          }, index * 200);
+        });
+
+        // Удаляем совпавшие ячейки и заполняем новыми
+        setTimeout(() => {
+          this.removeMatches(matches);
+          this.fillBoard();
+          this.renderBoard();
+
+          // Проверяем каскадные совпадения
+          setTimeout(() => {
+            const newMatches = this.findAllMatches();
+            if (newMatches.length > 0) {
+              this.processMatches(newMatches);
+            }
+          }, 500);
+        }, matches.length * 200);
+      }
+
+      removeMatches(matches) {
+        const cellsToRemove = new Set();
+
+        matches.forEach(match => {
+          match.forEach(cell => {
+            cellsToRemove.add(`${cell.row},${cell.col}`);
+            this.board[cell.row][cell.col] = '';
+          });
+        });
+      }
+
+      fillBoard() {
+        // Опускаем элементы вниз
+        for (let j = 0; j < this.boardSize; j++) {
+          let emptySpaces = 0;
+
+          // Считаем снизу вверх
+          for (let i = this.boardSize - 1; i >= 0; i--) {
+            if (this.board[i][j] === '') {
+              emptySpaces++;
+            } else if (emptySpaces > 0) {
+              this.board[i + emptySpaces][j] = this.board[i][j];
+              this.board[i][j] = '';
+            }
+          }
+
+          // Заполняем пустые места сверху
+          for (let i = 0; i < emptySpaces; i++) {
+            this.board[i][j] = this.getRandomCellType();
+          }
+        }
+      }
+
+      showCompliment() {
+        const randomCompliment = this.compliments[Math.floor(Math.random() * this.compliments.length)];
+        const message = document.getElementById('complimentMessage');
+        const text = document.getElementById('complimentText');
+
+        text.textContent = randomCompliment;
+        message.classList.add('show');
+
+        setTimeout(() => {
+          message.classList.remove('show');
+        }, 2000);
+      }
+
+      showHint() {
+        const matches = this.findAllMatches();
+        if (matches.length > 0) {
+          // Подсвечиваем первую найденную комбинацию
+          const firstMatch = matches[0];
+          firstMatch.forEach(cell => {
+            const cellElement = this.getCellElement(cell.row, cell.col);
+            cellElement.style.background = 'rgba(255, 215, 0, 0.5)';
+
+            setTimeout(() => {
+              cellElement.style.background = '';
+            }, 1000);
+          });
+        } else {
+          this.showCompliment();
+        }
+      }
+
+      shuffleBoard() {
+        // Простой алгоритм перемешивания
+        for (let i = this.boardSize - 1; i > 0; i--) {
+          for (let j = this.boardSize - 1; j > 0; j--) {
+            const randomI = Math.floor(Math.random() * (i + 1));
+            const randomJ = Math.floor(Math.random() * (j + 1));
+
+            const temp = this.board[i][j];
+            this.board[i][j] = this.board[randomI][randomJ];
+            this.board[randomI][randomJ] = temp;
+          }
+        }
+
+        this.renderBoard();
+      }
+
+      restartGame() {
+        this.score = 0;
+        this.combinations = 0;
+        this.selectedCell = null;
+        this.createBoard();
+        this.renderBoard();
+        this.updateStats();
+      }
+
+      getCellElement(row, col) {
+        return document.querySelector(`.game-cell[data-row="${row}"][data-col="${col}"]`);
+      }
+
+      updateStats() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('combinations').textContent = this.combinations;
+      }
+    }
+
+    // Инициализация игры после загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      new Match3Game();
+    });
+
+    // Инициализация Telegram Web App
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Telegram && Telegram.WebApp) {
+        const tg = Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        tg.setHeaderColor('#667eea');
+        tg.setBackgroundColor('#667eea');
+      }
+    });
+  </script>
+</body>
+
+</html>
