@@ -120,14 +120,14 @@ class SweetApp {
     const particle = document.createElement('div');
     particle.innerHTML = ['✨', '🌟', '💫', '⭐'][Math.floor(Math.random() * 4)];
     particle.style.cssText = `
-            position: fixed;
-            left: ${x}px;
-            top: ${y}px;
-            font-size: ${Math.random() * 20 + 10}px;
-            pointer-events: none;
-            z-index: 1000;
-            transition: all 0.8s ease-out;
-        `;
+      position: fixed;
+      left: ${x}px;
+      top: ${y}px;
+      font-size: ${Math.random() * 20 + 10}px;
+      pointer-events: none;
+      z-index: 1000;
+      transition: all 0.8s ease-out;
+    `;
 
     document.body.appendChild(particle);
 
@@ -204,14 +204,14 @@ class SweetApp {
     const heart = document.createElement('div');
     heart.innerHTML = '💖';
     heart.style.cssText = `
-            position: fixed;
-            bottom: 0;
-            left: ${Math.random() * 100}vw;
-            font-size: ${Math.random() * 20 + 20}px;
-            pointer-events: none;
-            z-index: 100;
-            animation: flyUp ${Math.random() * 2 + 2}s ease-in forwards;
-        `;
+      position: fixed;
+      bottom: 0;
+      left: ${Math.random() * 100}vw;
+      font-size: ${Math.random() * 20 + 20}px;
+      pointer-events: none;
+      z-index: 100;
+      animation: flyUp ${Math.random() * 2 + 2}s ease-in forwards;
+    `;
 
     document.body.appendChild(heart);
 
@@ -239,7 +239,8 @@ class SweetApp {
       "Ты делаешь мою жизнь осмысленной! 💝",
       "Твое присутствие - самый лучший подарок! 🎁",
       "Я восхищаюсь твоей силой и добротой! 🌟",
-      "Ты вдохновляешь меня становиться лучше! ✨"
+      "Ты вдохновляешь меня становиться лучше! ✨",
+      "Каждый день с тобой - это праздник! Ты превосходная и замечательная. 💫"
     ];
 
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];

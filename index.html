@@ -48,26 +48,36 @@
 
     <!-- Интерактивные кнопки -->
     <div class="buttons-container">
-    <!-- Существующие кнопки -->
-    <button class="magic-btn" id="magicBtn">
+      <!-- Существующие кнопки -->
+      <button class="magic-btn" id="magicBtn">
         <span class="btn-text">Волшебство ✨</span>
         <div class="btn-shine"></div>
-    </button>
-    
-    <button class="love-btn" id="loveBtn">
+      </button>
+
+      <button class="love-btn" id="loveBtn">
         <i class="fas fa-heart"></i>
         <span>Отправить любовь</span>
-    </button>
+      </button>
 
-    <!-- Новая кнопка для игры -->
-    <a href="game.html" class="game-link">
-        <button class="magic-btn" style="background: linear-gradient(135deg, #c77dff, #48cae4);">
-            <span class="btn-text">Сыграть в игру 🎮</span>
-            <div class="btn-shine"></div>
+      <!-- Новая кнопка для игры -->
+      <a href="game.html" class="game-link">
+        <button class="magic-btn">
+          <span class="btn-text">Сыграть в игру 🎮</span>
+          <div class="btn-shine"></div>
         </button>
-    </a>
-</div>
+      </a>
 
+      <!---->
+      <a href="solitaire.html" class="game-link">
+          <button class="magic-btn">
+              <span class="btn-text">Косынка 🃏</span>
+              <div class="btn-shine"></div>
+          </button>
+      </a>
+    </div>
+  </div>
+
+  <div>
     <!-- Статистика комплиментов -->
     <div class="stats-container">
       <div class="stat-item">
@@ -97,11 +107,11 @@
   <div class="modal" id="surpriseModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Секретное сообщение! 💌</h2>
+        <h2>Секретное сообщение!</h2>
         <button class="close-modal" id="closeModal">&times;</button>
       </div>
       <div class="modal-body">
-        <p id="secretMessage">Каждый день с тобой - это праздник! Ты делаешь мир ярче просто своим присутствием. 💫</p>
+        <p id="secretMessage"></p>
         <div class="message-heart">💝</div>
       </div>
     </div>

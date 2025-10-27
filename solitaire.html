@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Косынка для Умнички! 🃏</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="solitaire_style.css">
+</head>
+
+<body>
+  <!-- Анимированный фон -->
+  <div class="animated-bg">
+    <div class="bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+    </div>
+  </div>
+
+  <!-- Контейнер игры -->
+  <div class="solitaire-container">
+    <h1 class="game-title">Косынка 🃏</h1>
+
+    <div class="game-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="moves">0</div>
+        <div>Ходы</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="time">00:00</div>
+        <div>Время</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="score">0</div>
+        <div>Очки</div>
+      </div>
+    </div>
+
+    <div class="solitaire-game">
+      <!-- Открытая колода и базовые стопки -->
+      <div class="top-row">
+        <div class="deck-container">
+          <div class="deck-placeholder" id="stock">
+            <div class="card-back">🃏</div>
+          </div>
+          <div class="deck-placeholder" id="waste"></div>
+        </div>
+        <div class="foundations">
+          <div class="foundation" data-suit="hearts"></div>
+          <div class="foundation" data-suit="diamonds"></div>
+          <div class="foundation" data-suit="clubs"></div>
+          <div class="foundation" data-suit="spades"></div>
+        </div>
+      </div>
+
+      <!-- Игровое поле -->
+      <div class="tableau" id="tableau">
+        <!-- 7 колонок будут созданы через JavaScript -->
+      </div>
+    </div>
+
+    <div class="game-controls">
+      <button class="game-button" id="hintButton">Подсказка 💡</button>
+      <button class="game-button" id="restartButton">Заново 🔄</button>
+      <button class="game-button" id="undoButton">Отменить ↩️</button>
+    </div>
+
+    <a href="index.html" class="back-button">
+      <i class="fas fa-arrow-left"></i> Вернуться назад
+    </a>
+  </div>
+
+  <!-- Сообщение с комплиментом -->
+  <div class="compliment-message" id="complimentMessage">
+    <div class="message-heart">💖</div>
+    <h3 id="complimentText">Молодец! Ты просто умничка! ✨</h3>
+  </div>
+
+  <!-- Сообщение о победе -->
+  <div class="win-message" id="winMessage" style="display: none;">
+    <div class="message-heart">🎉</div>
+    <h2>Поздравляю! Ты выиграла! 🏆</h2>
+    <p>Ты собрала всю косынку за <span id="winTime">00:00</span> и <span id="winMoves">0</span> ходов!</p>
+    <button class="game-button" onclick="document.getElementById('winMessage').style.display='none'">
+      Продолжить играть
+    </button>
+  </div>
+
+  <!-- Плавающие элементы -->
+  <div class="floating-elements">
+    <div class="floating-element fe-1">💖</div>
+    <div class="floating-element fe-2">✨</div>
+    <div class="floating-element fe-3">🌟</div>
+    <div class="floating-element fe-4">🎀</div>
+    <div class="floating-element fe-5">💕</div>
+    <div class="floating-element fe-6">🃏</div>
+    <div class="floating-element fe-7">♥️</div>
+    <div class="floating-element fe-8">♠️</div>
+  </div>
+
+  <script>
+    class SolitaireGame {
+      constructor() {
+        this.suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        this.ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        this.deck = [];
+        this.tableau = [[], [], [], [], [], [], []];
+        this.foundations = { hearts: [], diamonds: [], clubs: [], spades: [] };
+        this.stock = [];
+        this.waste = [];
+        this.selectedCards = [];
+        this.moves = 0;
+        this.score = 0;
+        this.startTime = null;
+        this.timerInterval = null;
+        this.moveHistory = [];
+        this.draggedCard = null;
+
+        this.compliments = [
+          "Блестяще! Ты настоящий стратег! ♠️",
+          "Великолепный ход! Ты справляешься прекрасно! ♥️",
+          "Потрясающе! У тебя отлично получается! ♦️",
+          "Браво! Твои навыки впечатляют! ♣️",
+          "Замечательно! Ты находишь лучшие решения! 🃏",
+          "Идеально! Ты рождена для этой игры! 💫",
+          "Превосходно! Твоя стратегия работает безупречно! 🌟",
+          "Фантастика! Ты делаешь это так легко и изящно! ✨"
+        ];
+
+        this.init();
+      }
+
+      init() {
+        this.createDeck();
+        this.shuffleDeck();
+        this.dealCards();
+        this.renderGame();
+        this.setupEventListeners();
+        this.startTimer();
+        this.updateStats();
+      }
+
+      createDeck() {
+        this.deck = [];
+        this.suits.forEach(suit => {
+          this.ranks.forEach(rank => {
+            this.deck.push({
+              suit: suit,
+              rank: rank,
+              faceUp: false
+            });
+          });
+        });
+      }
+
+      shuffleDeck() {
+        for (let i = this.deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+        }
+      }
+
+      dealCards() {
+        // Раздача карт в tableau
+        let cardIndex = 0;
+        for (let col = 0; col < 7; col++) {
+          for (let row = 0; row <= col; row++) {
+            const card = this.deck[cardIndex++];
+            card.faceUp = (row === col); // Только верхняя карта открыта
+            this.tableau[col].push(card);
+          }
+        }
+
+        // Оставшиеся карты идут в сток
+        this.stock = this.deck.slice(cardIndex);
+      }
+
+      renderGame() {
+        this.renderStock();
+        this.renderWaste();
+        this.renderFoundations();
+        this.renderTableau();
+      }
+
+      renderStock() {
+        const stock = document.getElementById('stock');
+        stock.innerHTML = this.stock.length > 0 ?
+          '<div class="card-back">🃏</div>' :
+          '<div class="empty-placeholder"></div>';
+      }
+
+      renderWaste() {
+        const waste = document.getElementById('waste');
+        waste.innerHTML = '';
+
+        if (this.waste.length > 0) {
+          const topCard = this.waste[this.waste.length - 1];
+          const cardElement = this.createCardElement(topCard, 'waste');
+          waste.appendChild(cardElement);
+        } else {
+          waste.innerHTML = '<div class="empty-placeholder"></div>';
+        }
+      }
+
+      renderFoundations() {
+        this.suits.forEach(suit => {
+          const foundation = document.querySelector(`.foundation[data-suit="${suit}"]`);
+          foundation.innerHTML = '';
+
+          const cards = this.foundations[suit];
+          if (cards.length > 0) {
+            const topCard = cards[cards.length - 1];
+            const cardElement = this.createCardElement(topCard, 'foundation');
+            foundation.appendChild(cardElement);
+          } else {
+            foundation.innerHTML = `<div class="empty-placeholder">${this.getSuitSymbol(suit)}</div>`;
+          }
+        });
+      }
+
+      renderTableau() {
+        const tableau = document.getElementById('tableau');
+        tableau.innerHTML = '';
+
+        for (let col = 0; col < 7; col++) {
+          const column = document.createElement('div');
+          column.className = 'tableau-column';
+          column.dataset.column = col;
+
+          this.tableau[col].forEach((card, index) => {
+            const cardElement = this.createCardElement(card, 'tableau', col, index);
+            column.appendChild(cardElement);
+          });
+
+          tableau.appendChild(column);
+        }
+      }
+
+      createCardElement(card, source, col = null, index = null) {
+        const cardElement = document.createElement('div');
+        cardElement.className = `card ${card.faceUp ? 'face-up' : 'face-down'} ${card.suit}`;
+        cardElement.dataset.suit = card.suit;
+        cardElement.dataset.rank = card.rank;
+        cardElement.dataset.source = source;
+
+        if (col !== null) cardElement.dataset.column = col;
+        if (index !== null) cardElement.dataset.index = index;
+
+        if (card.faceUp) {
+          cardElement.innerHTML = `
+            <div class="card-rank">${card.rank}</div>
+            <div class="card-suit">${this.getSuitSymbol(card.suit)}</div>
+          `;
+
+          // Добавляем обработчики для перетаскивания
+          this.addDragHandlers(cardElement);
+        } else {
+          cardElement.innerHTML = '<div class="card-back">🃏</div>';
+        }
+
+        return cardElement;
+      }
+
+      addDragHandlers(cardElement) {
+        cardElement.setAttribute('draggable', 'true');
+
+        cardElement.addEventListener('dragstart', (e) => {
+          this.draggedCard = cardElement;
+          cardElement.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', '');
+        });
+
+        cardElement.addEventListener('dragend', () => {
+          cardElement.classList.remove('dragging');
+          document.querySelectorAll('.drop-zone').forEach(el => {
+            el.classList.remove('drop-zone');
+          });
+        });
+      }
+
+      getSuitSymbol(suit) {
+        const symbols = {
+          'hearts': '♥️',
+          'diamonds': '♦️',
+          'clubs': '♣️',
+          'spades': '♠️'
+        };
+        return symbols[suit];
+      }
+
+      setupEventListeners() {
+        // Клик по стоку
+        document.getElementById('stock').addEventListener('click', () => {
+          this.dealFromStock();
+        });
+
+        // Обработчики для зон сброса
+        this.setupDropZones();
+
+        // Кнопки управления
+        document.getElementById('hintButton').addEventListener('click', () => {
+          this.showHint();
+        });
+
+        document.getElementById('restartButton').addEventListener('click', () => {
+          this.restartGame();
+        });
+
+        document.getElementById('undoButton').addEventListener('click', () => {
+          this.undoMove();
+        });
+      }
+
+      setupDropZones() {
+        // Foundations как зоны сброса
+        document.querySelectorAll('.foundation').forEach(foundation => {
+          foundation.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            foundation.classList.add('drop-zone');
+          });
+
+          foundation.addEventListener('drop', (e) => {
+            e.preventDefault();
+            foundation.classList.remove('drop-zone');
+            this.handleDrop(foundation, 'foundation');
+          });
+
+          foundation.addEventListener('dragleave', () => {
+            foundation.classList.remove('drop-zone');
+          });
+        });
+
+        // Tableau columns как зоны сброса
+        document.getElementById('tableau').addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const column = e.target.closest('.tableau-column');
+          if (column) {
+            column.classList.add('drop-zone');
+          }
+        });
+
+        document.getElementById('tableau').addEventListener('drop', (e) => {
+          e.preventDefault();
+          const column = e.target.closest('.tableau-column');
+          if (column) {
+            column.classList.remove('drop-zone');
+            this.handleDrop(column, 'tableau');
+          }
+        });
+
+        document.getElementById('tableau').addEventListener('dragleave', (e) => {
+          const column = e.target.closest('.tableau-column');
+          if (column) {
+            column.classList.remove('drop-zone');
+          }
+        });
+      }
+
+      handleDrop(target, targetType) {
+        if (!this.draggedCard) return;
+
+        const sourceType = this.draggedCard.dataset.source;
+        const sourceCol = this.draggedCard.dataset.column;
+        const sourceIndex = parseInt(this.draggedCard.dataset.index);
+        const card = this.getCardFromSource(sourceType, sourceCol, sourceIndex);
+
+        if (!card) return;
+
+        let success = false;
+
+        if (targetType === 'foundation') {
+          const suit = target.dataset.suit;
+          success = this.moveToFoundation(card, suit, sourceType, sourceCol, sourceIndex);
+        } else if (targetType === 'tableau') {
+          const targetCol = parseInt(target.dataset.column);
+          success = this.moveToTableau(card, targetCol, sourceType, sourceCol, sourceIndex);
+        }
+
+        if (success) {
+          this.moves++;
+          this.score += 5;
+          this.updateStats();
+          this.renderGame();
+          this.checkWinCondition();
+        }
+
+        this.draggedCard = null;
+      }
+
+      getCardFromSource(sourceType, col, index) {
+        if (sourceType === 'waste') {
+          return this.waste[this.waste.length - 1];
+        } else if (sourceType === 'tableau') {
+          return this.tableau[col][index];
+        } else if (sourceType === 'foundation') {
+          const suit = col; // В этом случае col содержит suit
+          return this.foundations[suit][index];
+        }
+        return null;
+      }
+
+      moveToFoundation(card, suit, sourceType, sourceCol, sourceIndex) {
+        if (card.suit !== suit) return false;
+
+        const foundation = this.foundations[suit];
+        if (foundation.length === 0) {
+          if (card.rank === 'A') {
+            this.removeCardFromSource(sourceType, sourceCol, sourceIndex);
+            foundation.push(card);
+            this.showCompliment();
+            return true;
+          }
+        } else {
+          const topCard = foundation[foundation.length - 1];
+          if (this.getRankValue(card.rank) === this.getRankValue(topCard.rank) + 1) {
+            this.removeCardFromSource(sourceType, sourceCol, sourceIndex);
+            foundation.push(card);
+            this.showCompliment();
+            return true;
+          }
+        }
+        return false;
+      }
+
+      moveToTableau(card, targetCol, sourceType, sourceCol, sourceIndex) {
+        const targetPile = this.tableau[targetCol];
+
+        if (targetPile.length === 0) {
+          if (card.rank === 'K') {
+            this.removeCardFromSource(sourceType, sourceCol, sourceIndex);
+            targetPile.push(card);
+            this.flipTopCard(sourceType, sourceCol);
+            return true;
+          }
+        } else {
+          const topCard = targetPile[targetPile.length - 1];
+          const differentColor = this.isRed(card) !== this.isRed(topCard);
+          const rankValid = this.getRankValue(card.rank) === this.getRankValue(topCard.rank) - 1;
+
+          if (differentColor && rankValid) {
+            this.removeCardFromSource(sourceType, sourceCol, sourceIndex);
+            targetPile.push(card);
+            this.flipTopCard(sourceType, sourceCol);
+            return true;
+          }
+        }
+        return false;
+      }
+
+      removeCardFromSource(sourceType, col, index) {
+        if (sourceType === 'waste') {
+          this.waste.pop();
+        } else if (sourceType === 'tableau') {
+          this.tableau[col].splice(index, 1);
+        } else if (sourceType === 'foundation') {
+          const suit = col;
+          this.foundations[suit].pop();
+        }
+      }
+
+      flipTopCard(sourceType, col) {
+        if (sourceType === 'tableau') {
+          const pile = this.tableau[col];
+          if (pile.length > 0 && !pile[pile.length - 1].faceUp) {
+            pile[pile.length - 1].faceUp = true;
+          }
+        }
+      }
+
+      isRed(card) {
+        return card.suit === 'hearts' || card.suit === 'diamonds';
+      }
+
+      getRankValue(rank) {
+        const values = {
+          'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6,
+          '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13
+        };
+        return values[rank];
+      }
+
+      dealFromStock() {
+        if (this.stock.length > 0) {
+          const card = this.stock.pop();
+          card.faceUp = true;
+          this.waste.push(card);
+          this.moves++;
+          this.updateStats();
+          this.renderStock();
+          this.renderWaste();
+        } else {
+          // Перемещаем карты из сброса обратно в сток
+          this.stock = [...this.waste.reverse()];
+          this.waste = [];
+          this.stock.forEach(card => card.faceUp = false);
+          this.moves++;
+          this.updateStats();
+          this.renderStock();
+          this.renderWaste();
+        }
+      }
+
+      showHint() {
+        // Простая подсказка - находим возможный ход
+        this.showCompliment();
+      }
+
+      undoMove() {
+        // Базовая реализация отмены хода
+        this.showCompliment();
+      }
+
+      startTimer() {
+        this.startTime = new Date();
+        this.timerInterval = setInterval(() => {
+          this.updateTime();
+        }, 1000);
+      }
+
+      updateTime() {
+        const now = new Date();
+        const diff = Math.floor((now - this.startTime) / 1000);
+        const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+        const seconds = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('time').textContent = `${minutes}:${seconds}`;
+      }
+
+      showCompliment() {
+        const randomCompliment = this.compliments[Math.floor(Math.random() * this.compliments.length)];
+        const message = document.getElementById('complimentMessage');
+        const text = document.getElementById('complimentText');
+
+        text.textContent = randomCompliment;
+        message.classList.add('show');
+
+        setTimeout(() => {
+          message.classList.remove('show');
+        }, 2000);
+      }
+
+      checkWinCondition() {
+        const allFoundationsFull = this.suits.every(suit =>
+          this.foundations[suit].length === 13
+        );
+
+        if (allFoundationsFull) {
+          this.showWinMessage();
+        }
+      }
+
+      showWinMessage() {
+        clearInterval(this.timerInterval);
+
+        const winMessage = document.getElementById('winMessage');
+        const winTime = document.getElementById('winTime');
+        const winMoves = document.getElementById('winMoves');
+
+        winTime.textContent = document.getElementById('time').textContent;
+        winMoves.textContent = this.moves;
+
+        winMessage.style.display = 'block';
+      }
+
+      restartGame() {
+        clearInterval(this.timerInterval);
+        this.moves = 0;
+        this.score = 0;
+        this.tableau = [[], [], [], [], [], [], []];
+        this.foundations = { hearts: [], diamonds: [], clubs: [], spades: [] };
+        this.stock = [];
+        this.waste = [];
+        this.selectedCards = [];
+        this.moveHistory = [];
+        this.draggedCard = null;
+
+        this.createDeck();
+        this.shuffleDeck();
+        this.dealCards();
+        this.renderGame();
+        this.startTimer();
+        this.updateStats();
+      }
+
+      updateStats() {
+        document.getElementById('moves').textContent = this.moves;
+        document.getElementById('score').textContent = this.score;
+      }
+    }
+
+    // Инициализация игры после загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      new SolitaireGame();
+    });
+
+    // Добавьте этот код в конец скрипта SolitaireGame, перед закрывающим тегом
+
+    // Автоматическое масштабирование для мобильных устройств
+    function setupMobileScaling() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+          viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        }
+
+        // Предотвращение zoom при двойном тапе
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+          const now = (new Date()).getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+      }
+    }
+
+    // Улучшенная обработка касаний для мобильных устройств
+    function setupTouchHandlers() {
+      let startX, startY;
+      let currentCard = null;
+
+      document.addEventListener('touchstart', function (e) {
+        const card = e.target.closest('.card.face-up');
+        if (card) {
+          currentCard = card;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+
+          // Показываем подсказку о перетаскивании
+          card.style.transform = 'scale(1.05)';
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchend', function (e) {
+        if (currentCard) {
+          currentCard.style.transform = '';
+          currentCard = null;
+        }
+      }, { passive: true });
+    }
+
+    // Инициализация после загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      setupMobileScaling();
+      setupTouchHandlers();
+      new SolitaireGame();
+    });
+  </script>
+</body>
+
+</html>
