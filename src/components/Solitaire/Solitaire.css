@@ -1,0 +1,418 @@
+/* Solitaire.css - Полный стиль для игры Косынка */
+
+/* Основные переменные цветов */
+:root {
+  --primary-pink: #ff6b8b;
+  --secondary-pink: #ff8fa3;
+  --light-pink: #ffb3c6;
+  --gold: #ffd166;
+  --purple: #c77dff;
+  --blue: #48cae4;
+  --text-dark: #2d3047;
+  --text-light: #ffffff;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --success-green: #4CAF50;
+  --warning-orange: #FF9800;
+}
+
+/* Основные стили страницы */
+.solitaire-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+  position: relative;
+  padding: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.solitaire-container {
+  text-align: center;
+  max-width: 900px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow);
+  margin: 0.5rem auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* Заголовок игры */
+.game-title {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+/* Статистика игры */
+.game-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 1rem 0;
+  color: white;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 0.5rem;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.stat-value:hover {
+  transform: scale(1.1);
+}
+
+/* Основной контейнер игры */
+.solitaire-game {
+  margin: 1rem 0;
+}
+
+/* Верхний ряд: сток, сброс и фундаменты */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.deck-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.deck-placeholder {
+  width: 80px;
+  height: 112px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.deck-placeholder:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.deck-placeholder.stock:hover::after {
+  content: "Взять карту";
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.foundations {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.foundation {
+  width: 80px;
+  height: 112px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.foundation:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Игровое поле (tableau) */
+.tableau {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.8rem;
+  margin: 1rem 0;
+  min-height: 200px;
+}
+
+.tableau-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 150px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 5px;
+  position: relative;
+}
+
+.tableau-column:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Стили для карт */
+.card {
+  width: 80px;
+  height: 112px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-back {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-pink), var(--purple));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.face-up {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card.face-up.red {
+  color: #e74c3c;
+}
+
+.card.face-up.black {
+  color: #2c3e50;
+}
+
+.card-rank {
+  font-size: 1.2rem;
+  font-weight: 700;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.card-suit {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-top: 25px;
+}
+
+/* Выделенная карта */
+.card.selected {
+  transform: translateY(-10px);
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+}
+
+/* Пустые плейсхолдеры */
+.empty-placeholder {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.empty-placeholder:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 🎮 Кнопки управления */
+.game-controls {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+/* Общий стиль для кнопок */
+.game-button,
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #758cf5 0%, #8f5ac4 100%);
+  border: none;
+  padding: 12px 26px;
+  font-size: 1rem;
+  color: #ffffff;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 0 #6e4597, 0 8px 16px rgba(0, 0, 0, 0.15);
+
+  /* Текстовые эффекты */
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(255, 255, 255, 0.35),
+    0 0 2px rgba(255, 255, 255, 0.7);
+}
+
+/* Световой блик */
+.game-button::before,
+.back-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), transparent);
+  transform: skewX(-25deg);
+  transition: left 0.6s;
+}
+
+.game-button:hover::before,
+.back-button:hover::before {
+  left: 125%;
+}
+
+/* Hover эффект */
+.game-button:hover,
+.back-button:hover {
+   transform: translateY(-3px);
+  background: linear-gradient(135deg, #a3f0ff 0%, #85b8ff 100%);
+  box-shadow: 0 5px 0 #1b3e69, 0 10px 20px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.8),
+    0 0 10px rgba(173, 216, 255, 0.6),
+    0 0 18px rgba(173, 216, 255, 0.4);
+}
+
+/* Active эффект */
+.game-button:active,
+.back-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2e6bb3, 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Сообщение с комплиментом */
+.compliment-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: linear-gradient(135deg, var(--primary-pink), var(--purple));
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s ease;
+  max-width: 300px;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.compliment-message.show {
+  transform: translate(-50%, -50%) scale(1);
+  animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.message-heart {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  animation: heartBeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+/* Анимация для успешного перемещения */
+@keyframes successfulMove {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.card.success-move {
+  animation: successfulMove 0.5s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .game-button,
+  .back-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: 14px;
+  }
+}

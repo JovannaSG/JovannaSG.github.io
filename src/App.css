@@ -1,38 +1,54 @@
-.App {
-  text-align: center;
+/* Переменные цветов (как в вашем оригинальном CSS) */
+:root {
+  --primary-pink: #ff6b8b;
+  --secondary-pink: #ff8fa3;
+  --light-pink: #ffb3c6;
+  --gold: #ffd166;
+  --purple: #c77dff;
+  --blue: #48cae4;
+  --text-dark: #2d3047;
+  --text-light: #ffffff;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+body {
+  font-family: 'Montserrat', sans-serif;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  overflow-x: hidden;
+}
+
+/* Общие стили для кнопок */
+.magic-btn {
+  position: relative;
+  background: linear-gradient(135deg, #c77dff, #48cae4);
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
   color: white;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 5px 20px rgba(255, 209, 102, 0.4);
+  margin: 0.5rem;
 }
 
-.App-link {
-  color: #61dafb;
+.magic-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 181, 8, 0.6);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+/* Адаптивность */
+@media (max-width: 768px) {
+  .magic-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
   }
 }
