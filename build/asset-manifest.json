@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/JovannaSG.github.io/static/css/main.1c56acb2.css",
+    "main.js": "/JovannaSG.github.io/static/js/main.af22cc22.js",
+    "static/js/453.f0ad4953.chunk.js": "/JovannaSG.github.io/static/js/453.f0ad4953.chunk.js",
+    "index.html": "/JovannaSG.github.io/index.html",
+    "main.1c56acb2.css.map": "/JovannaSG.github.io/static/css/main.1c56acb2.css.map",
+    "main.af22cc22.js.map": "/JovannaSG.github.io/static/js/main.af22cc22.js.map",
+    "453.f0ad4953.chunk.js.map": "/JovannaSG.github.io/static/js/453.f0ad4953.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1c56acb2.css",
+    "static/js/main.af22cc22.js"
+  ]
+}
