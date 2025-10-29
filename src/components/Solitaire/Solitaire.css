@@ -1,4 +1,4 @@
-/* Solitaire.css - Полный стиль для игры Косынка */
+/* Solitaire.css - Мобильный дизайн */
 
 /* Основные переменные цветов */
 :root {
@@ -20,33 +20,43 @@
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  overflow: auto;
+  align-items: stretch;
+  overflow: hidden;
   position: relative;
-  padding: 1rem;
+  padding: 0;
   font-family: 'Montserrat', sans-serif;
 }
 
 .solitaire-container {
-  text-align: center;
-  max-width: 900px;
-  padding: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(20px);
-  border-radius: 25px;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: var(--shadow);
-  margin: 0.5rem auto;
+  margin: 0;
   position: relative;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Заголовок игры */
+.game-header {
+  flex-shrink: 0;
+  padding: 0.5rem;
+  text-align: center;
+}
+
 .game-title {
   font-family: 'Dancing Script', cursive;
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   color: white;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
   letter-spacing: 1px;
 }
@@ -55,14 +65,11 @@
 .game-stats {
   display: flex;
   justify-content: space-around;
-  margin: 1rem 0;
   color: white;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .stat-item {
@@ -70,78 +77,61 @@
   flex: 1;
 }
 
+.stat-label {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 0.2rem;
+}
+
 .stat-value {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--gold);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
 }
 
-.stat-value:hover {
-  transform: scale(1.1);
+/* Основная игровая область */
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
 }
 
-/* Основной контейнер игры */
-.solitaire-game {
-  margin: 1rem 0;
-}
-
-/* Верхний ряд: сток, сброс и фундаменты */
-.top-row {
+/* Верхняя зона - колоды и фундаменты */
+.top-zone {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1rem;
-  flex-wrap: wrap;
   align-items: center;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  min-height: 120px;
+  flex-wrap: nowrap;
+  overflow: visible;
+  gap: 0.8rem;
 }
 
 .deck-container {
   display: flex;
   gap: 1rem;
-}
-
-.deck-placeholder {
-  width: 80px;
-  height: 112px;
-  border-radius: 8px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.deck-placeholder:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-}
-
-.deck-placeholder.stock:hover::after {
-  content: "Взять карту";
-  position: absolute;
-  bottom: -25px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  white-space: nowrap;
 }
 
 .foundations {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  align-items: center;
 }
 
-.foundation {
-  width: 80px;
-  height: 112px;
-  border: 2px dashed rgba(255, 255, 255, 0.3);
+/* Карты в верхней зоне - ОПТИМАЛЬНЫЙ РАЗМЕР */
+.top-zone .deck-placeholder,
+.top-zone .foundation {
+  width: 75px;
+  height: 105px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -149,54 +139,60 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
 }
 
+.deck-placeholder:hover,
 .foundation:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
 }
 
-/* Игровое поле (tableau) */
-.tableau {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.8rem;
-  margin: 1rem 0;
-  min-height: 200px;
-}
-
-.tableau-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 150px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  padding: 5px;
-  position: relative;
-}
-
-.tableau-column:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Стили для карт */
-.card {
-  width: 80px;
-  height: 112px;
+/* Внутренние карты в верхней зоне */
+.top-zone .card {
+  width: 100%;
+  height: 100%;
+  margin-top: 0 !important;
   border-radius: 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.5rem;
+  padding: 0.4rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
   position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.top-zone .card.face-up {
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.top-zone .card.face-up.red {
+  color: #e74c3c;
+}
+
+.top-zone .card.face-up.black {
+  color: #2c3e50;
+}
+
+.top-zone .card.selected {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8);
+  z-index: 100;
+}
+
+/* Улучшаем отображение карт в стоке и сбросе */
+.deck-placeholder.stock .card-back,
+.deck-placeholder.waste .card {
+  width: 100%;
+  height: 100%;
+  font-size: 1.6rem;
 }
 
 .card-back {
@@ -207,10 +203,70 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   color: white;
   position: relative;
   overflow: hidden;
+}
+
+/* Увеличиваем текст на картах в верхней зоне */
+.top-zone .card-rank {
+  font-size: 1.1rem;
+  font-weight: 700;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+}
+
+.top-zone .card-suit {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-top: 25px;
+}
+
+/* Зона tableau с горизонтальной прокруткой */
+.tableau-zone {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tableau {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0 0.5rem;
+  min-width: min-content;
+}
+
+.tableau-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 70px;
+}
+
+/* Стили для карт в tableau */
+.tableau .card {
+  width: 65px;
+  height: 91px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: -60px;
+}
+
+.tableau .card:first-child {
+  margin-top: 0;
 }
 
 .card.face-up {
@@ -226,24 +282,24 @@
   color: #2c3e50;
 }
 
+.card.selected {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+  z-index: 100;
+}
+
 .card-rank {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   font-weight: 700;
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 4px;
+  left: 4px;
 }
 
 .card-suit {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   text-align: center;
-  margin-top: 25px;
-}
-
-/* Выделенная карта */
-.card.selected {
-  transform: translateY(-10px);
-  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+  margin-top: 20px;
 }
 
 /* Пустые плейсхолдеры */
@@ -256,26 +312,27 @@
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   transition: all 0.3s ease;
 }
 
-.empty-placeholder:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.5);
+/* Зона управления */
+.controls-zone {
+  flex-shrink: 0;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-top: 0.5rem;
 }
 
-/* 🎮 Кнопки управления */
 .game-controls {
-  margin: 1.5rem 0;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 1.2rem;
-  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0;
 }
 
-/* Общий стиль для кнопок */
+/* Кнопки */
 .game-button,
 .back-button {
   display: inline-flex;
@@ -284,8 +341,8 @@
   gap: 0.5rem;
   background: linear-gradient(135deg, #758cf5 0%, #8f5ac4 100%);
   border: none;
-  padding: 12px 26px;
-  font-size: 1rem;
+  padding: 12px 20px;
+  font-size: 0.95rem;
   color: #ffffff;
   border-radius: 18px;
   cursor: pointer;
@@ -296,51 +353,16 @@
   text-decoration: none;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 0 #6e4597, 0 8px 16px rgba(0, 0, 0, 0.15);
-
-  /* Текстовые эффекты */
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 0 8px rgba(255, 255, 255, 0.35),
-    0 0 2px rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  flex: 1;
+  max-width: 150px;
 }
 
-/* Световой блик */
-.game-button::before,
-.back-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), transparent);
-  transform: skewX(-25deg);
-  transition: left 0.6s;
-}
-
-.game-button:hover::before,
-.back-button:hover::before {
-  left: 125%;
-}
-
-/* Hover эффект */
 .game-button:hover,
 .back-button:hover {
-   transform: translateY(-3px);
+  transform: translateY(-3px);
   background: linear-gradient(135deg, #a3f0ff 0%, #85b8ff 100%);
   box-shadow: 0 5px 0 #1b3e69, 0 10px 20px rgba(0, 0, 0, 0.25);
-  color: #ffffff;
-  text-shadow:
-    0 0 4px rgba(255, 255, 255, 0.8),
-    0 0 10px rgba(173, 216, 255, 0.6),
-    0 0 18px rgba(173, 216, 255, 0.4);
-}
-
-/* Active эффект */
-.game-button:active,
-.back-button:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #2e6bb3, 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Сообщение с комплиментом */
@@ -357,7 +379,7 @@
   z-index: 1000;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
   transition: all 0.5s ease;
-  max-width: 300px;
+  max-width: 280px;
   width: 90%;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -396,81 +418,105 @@
   }
 }
 
-/* Анимация для успешного перемещения */
-@keyframes successfulMove {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
+/* АДАПТИВНОСТЬ */
 
-.card.success-move {
-  animation: successfulMove 0.5s ease;
-}
-
-/* Адаптивность */
-/* --- Улучшенная адаптивность для мобильных устройств --- */
-
-/* Мобильные телефоны в портретной ориентации */
+/* Для экранов до 768px */
 @media (max-width: 768px) {
-  .solitaire-page {
-    align-items: center;
-    padding: 0.5rem;
+  .top-zone .deck-placeholder,
+  .top-zone .foundation {
+    width: 70px;
+    height: 98px;
   }
+  
+  .top-zone {
+    min-height: 110px;
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+  
+  .deck-container {
+    gap: 0.8rem;
+  }
+  
+  .foundations {
+    gap: 0.6rem;
+  }
+  
+  .top-zone .card-rank {
+    font-size: 1rem;
+    top: 5px;
+    left: 5px;
+  }
+  
+  .top-zone .card-suit {
+    font-size: 1.4rem;
+    margin-top: 22px;
+  }
+  
+  .deck-placeholder.stock .card-back,
+  .deck-placeholder.waste .card {
+    font-size: 1.4rem;
+  }
+}
 
+/* Для очень маленьких экранов (до 480px) */
+@media (max-width: 480px) {
   .solitaire-container {
-    max-width: 100%;
-    width: 95%;
-    padding: 1rem;
-    border-radius: 20px;
+    padding: 0.3rem;
   }
 
   .game-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
 
-  .game-stats {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+  .top-zone .deck-placeholder,
+  .top-zone .foundation {
+    width: 60px;  /* ИСПРАВЛЕНО: было 20px */
+    height: 84px; /* ИСПРАВЛЕНО: было 90px */
   }
-
-  .top-row {
-    flex-direction: column;
-    align-items: center;
+  
+  .top-zone {
+    min-height: 90px;
+    padding: 0.6rem;
+    gap: 0.4rem;
+  }
+  
+  .deck-container {
     gap: 0.6rem;
   }
-
-  .deck-container {
-    justify-content: center;
-  }
-
+  
   .foundations {
-    justify-content: center;
+    gap: 0.4rem;
+  }
+  
+  .top-zone .card-rank {
+    font-size: 0.9rem;
+    top: 4px;
+    left: 4px;
+  }
+  
+  .top-zone .card-suit {
+    font-size: 1.2rem;
+    margin-top: 18px;
+  }
+  
+  .deck-placeholder.stock .card-back,
+  .deck-placeholder.waste .card {
+    font-size: 1.2rem;
   }
 
-  .tableau {
-    grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
-    gap: 0.4rem;
-    overflow-x: auto;
-    justify-items: center;
-    padding-bottom: 1rem;
+  .tableau .card {
+    width: 55px;
+    height: 77px;
+    margin-top: -50px;
   }
 
   .tableau-column {
-    gap: 0.3rem;
-    padding: 2px;
-  }
-
-  .card {
-    width: 50px;
-    height: 70px;
-    font-size: 0.8rem;
+    min-width: 60px;
   }
 
   .card-rank {
     font-size: 0.8rem;
-    top: 3px;
-    left: 3px;
   }
 
   .card-suit {
@@ -478,190 +524,98 @@
     margin-top: 15px;
   }
 
-  .game-controls,
   .game-button,
   .back-button {
-    flex-wrap: wrap;
+    padding: 10px 16px;
     font-size: 0.9rem;
-    padding: 8px 16px;
+    max-width: 140px;
   }
 }
 
-/* Очень маленькие экраны (до 480px) */
-@media (max-width: 480px) {
-  .card {
-    width: 40px;
-    height: 56px;
+/* Для очень узких экранов (до 360px) */
+@media (max-width: 360px) {
+  .top-zone .deck-placeholder,
+  .top-zone .foundation {
+    width: 55px;
+    height: 77px;
   }
-
-  .tableau {
-    grid-template-columns: repeat(7, 1fr);
+  
+  .top-zone {
     gap: 0.3rem;
+    padding: 0.4rem;
+    min-height: 85px;
   }
-
-  .deck-placeholder,
-  .foundation {
-    width: 45px;
-    height: 63px;
+  
+  .deck-container {
+    gap: 0.4rem;
   }
-
-  .game-title {
-    font-size: 1.6rem;
+  
+  .foundations {
+    gap: 0.2rem;
   }
-
-  .stat-value {
-    font-size: 1.3rem;
+  
+  .top-zone .card-suit {
+    font-size: 1.1rem;
+    margin-top: 16px;
   }
-
-  .compliment-message {
-    font-size: 0.9rem;
+  
+  .deck-placeholder.stock .card-back,
+  .deck-placeholder.waste .card {
+    font-size: 1.1rem;
   }
 }
 
-/* --- 📱 Мобильный layout с горизонтальной прокруткой --- */
-@media (max-width: 768px) {
-  .solitaire-page {
-    padding: 0.5rem;
-    align-items: flex-start;
-  }
-
+/* Ландшафтная ориентация */
+@media (max-width: 768px) and (orientation: landscape) {
   .solitaire-container {
-    width: 100%;
-    padding: 0.8rem;
-    border-radius: 20px;
+    padding: 0.3rem;
   }
 
-  .game-title {
-    font-size: 1.8rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .game-stats {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+  .game-area {
+    flex-direction: row;
     gap: 0.5rem;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
   }
 
-  /* --- Верхняя панель (колода + фундаменты) --- */
-  .top-row {
+  .top-zone {
     flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
+    justify-content: flex-start;
+    min-height: auto;
+    width: 100px;
+    flex-shrink: 0;
+    gap: 0.5rem;
   }
 
   .deck-container {
-    display: flex;
-    justify-content: center;
-    gap: 0.8rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .foundations {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .foundation,
-  .deck-placeholder {
-    width: 55px;
-    height: 78px;
-  }
-
-  /* --- Стол с картами --- */
-  .tableau {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto; /* 👈 теперь можно скроллить */
-    gap: 1rem;
-    padding: 0.5rem 0;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* плавный скролл на iOS */
-  }
-
-  .tableau::-webkit-scrollbar {
-    display: none; /* убираем полосу прокрутки */
-  }
-
-  .tableau-column {
-    flex: 0 0 auto; /* 👈 фиксированная ширина колонки, чтобы можно было листать */
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    position: relative;
-    min-width: 65px;
+    gap: 0.4rem;
   }
 
-  .card {
-    width: 65px;
-    height: 90px;
-    font-size: 1rem;
-    margin-top: -60px;
-    border-radius: 10px;
+  .tableau-zone {
+    flex: 1;
   }
 
-  .card.face-down {
-    background: linear-gradient(145deg, #4a4a4a, #222);
+  .controls-zone {
+    width: 100px;
+    flex-shrink: 0;
+    margin-top: 0;
   }
 
-  .card-rank {
-    font-size: 0.9rem;
-    top: 4px;
-    left: 4px;
-  }
-
-  .card-suit {
-    font-size: 1.1rem;
-  }
-
-  /* --- Кнопки управления --- */
-  .game-button {
-    font-size: 1rem;
-    padding: 10px 18px;
-    margin-top: 1rem;
-  }
-
-  .back-button {
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-  }
-
-  /* --- Сообщения / комплименты --- */
-  .compliment-message {
-    font-size: 0.9rem;
-    max-width: 280px;
-    min-height: 110px;
-    padding: 1rem;
+  .game-controls {
+    flex-direction: column;
   }
 }
 
-/* --- Очень маленькие экраны (до 480px) --- */
-@media (max-width: 480px) {
-  .solitaire-container {
-    padding: 0.6rem;
-  }
+/* Скрываем scrollbar для Webkit браузеров */
+.tableau-zone::-webkit-scrollbar {
+  display: none;
+}
 
-  .card {
-    width: 58px;
-    height: 78px;
-    font-size: 0.9rem;
-    margin-top: -50px;
-  }
-
-  .foundation,
-  .deck-placeholder {
-    width: 50px;
-    height: 70px;
-  }
-
-  .game-title {
-    font-size: 1.6rem;
-  }
-
-  .compliment-message {
-    font-size: 0.85rem;
-  }
+.tableau-zone {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

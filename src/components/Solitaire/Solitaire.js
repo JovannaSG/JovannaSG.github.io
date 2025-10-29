@@ -62,7 +62,14 @@ const Solitaire = () => {
   };
 
   const isRed = (card) => card.suit === "hearts" || card.suit === "diamonds";
-  const getSuitSymbol = (s) => ({ hearts: "♥️", diamonds: "♦️", clubs: "♣️", spades: "♠️" }[s]);
+  const getSuitSymbol = (s) => (
+    {
+      hearts: "♥️",
+      diamonds: "♦️",
+      clubs: "♣️",
+      spades: "♠️"
+    }[s]
+  );
   const getSuitColor = (s) => (s === "hearts" || s === "diamonds" ? "red" : "black");
 
   // --- game setup ---
@@ -123,6 +130,22 @@ const Solitaire = () => {
     return getCardValue(card.rank) === getCardValue(pile[pile.length - 1].rank) + 1;
   };
 
+  // Функция для проверки валидности стека карт (правильная последовательность)
+  const isValidStack = (cards) => {
+    if (cards.length <= 1) return true;
+    
+    for (let i = 0; i < cards.length - 1; i++) {
+      const current = cards[i];
+      const next = cards[i + 1];
+      
+      // Проверяем чередование цветов и последовательность
+      if (isRed(current) === isRed(next)) return false;
+      if (getCardValue(current.rank) !== getCardValue(next.rank) + 1) return false;
+    }
+    
+    return true;
+  };
+
   const removeFromSource = (source) => {
     if (!source) return;
     if (source.type === "waste") {
@@ -143,17 +166,48 @@ const Solitaire = () => {
     }
   };
 
+  // Обработчик клика на пустую колонку
+  const handleEmptyColumnClick = (colIndex) => {
+    if (selectedStack) {
+      const { cards, source } = selectedStack;
+      const topCard = cards[0];
+      
+      // Проверяем, можно ли поместить карту на пустую колонку (только король)
+      if (topCard.rank === "K") {
+        // Создаем глубокую копию карт для перемещения
+        const cardsToMove = cards.map(card => ({...card}));
+        
+        removeFromSource(source);
+        setTableau((prev) => {
+          const copy = prev.map((c) => [...c]);
+          copy[colIndex] = [...cardsToMove]; // Заменяем пустой массив новыми картами
+          return copy;
+        });
+        setSelectedStack(null);
+        setMoves((m) => m + 1);
+        setScore((s) => s + 5);
+        showRandomCompliment();
+      } else {
+        setSelectedStack(null);
+      }
+    }
+  };
+
   const handleCardClick = (card, colIndex, cardIndex) => {
     // если уже выбрана карта — пытаемся переместить
     if (selectedStack) {
       const { cards, source } = selectedStack;
       const topCard = cards[0];
-      // перемещение на колонку
-      if (canPlaceStackOnTableau(topCard, colIndex)) {
+      
+      // перемещение на колонку (не пустую)
+      if (colIndex !== undefined && canPlaceStackOnTableau(topCard, colIndex)) {
+        // Создаем глубокую копию карт для перемещения
+        const cardsToMove = cards.map(card => ({...card}));
+        
         removeFromSource(source);
         setTableau((prev) => {
           const copy = prev.map((c) => [...c]);
-          copy[colIndex].push(...cards);
+          copy[colIndex].push(...cardsToMove);
           return copy;
         });
         setSelectedStack(null);
@@ -171,26 +225,45 @@ const Solitaire = () => {
     if (!card.isFaceUp) return;
     const col = tableau[colIndex];
     const cardsToMove = col.slice(cardIndex); // весь стек открытых карт
-    setSelectedStack({ cards: cardsToMove, source: { type: "tableau", col: colIndex, index: cardIndex } });
+    
+    // Проверяем, что выбранные карты образуют валидную последовательность
+    if (!isValidStack(cardsToMove)) return;
+    
+    setSelectedStack({
+      cards: cardsToMove,
+      source: {
+        type: "tableau",
+        col: colIndex,
+        index: cardIndex
+      }
+    });
   };
 
   const handleFoundationClick = (suit) => {
-    if (!selectedStack) return;
+    if (!selectedStack)
+      return;
+
     const { cards, source } = selectedStack;
     if (cards.length === 1 && canPlaceCardOnFoundation(cards[0], suit)) {
+      // Создаем глубокую копию карты для перемещения
+      const cardToMove = {...cards[0]};
+      
       removeFromSource(source);
-      setFoundations((f) => ({ ...f, [suit]: [...f[suit], cards[0]] }));
+      setFoundations((f) => ({ ...f, [suit]: [...f[suit], cardToMove] }));
       setMoves((m) => m + 1);
       setScore((s) => s + 10);
       showRandomCompliment();
       setSelectedStack(null);
-    } else {
+    }
+    else {
       setSelectedStack(null);
     }
   };
 
   const showRandomCompliment = (prob = 0.15) => {
-    if (Math.random() > prob) return; // 92% случаев — без комплимента
+    if (Math.random() > prob)
+      return;
+
     setComplimentText(compliments[Math.floor(Math.random() * compliments.length)]);
     setShowCompliment(true);
     setTimeout(() => setShowCompliment(false), 3000);
@@ -198,7 +271,9 @@ const Solitaire = () => {
 
   const formatTime = (s) => `${Math.floor(s / 60)
     .toString()
-    .padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+    .padStart(2, "0")}:${(s % 60)
+    .toString()
+    .padStart(2, "0")}`;
 
   // --- render ---
   return (
@@ -207,107 +282,143 @@ const Solitaire = () => {
       <FloatingElements />
 
       <div className="solitaire-container">
-        <h1 className="game-title">Косынка 🃏</h1>
-
-        <div className="game-stats">
-          <div>Ходы: {moves}</div>
-          <div>Время: {formatTime(time)}</div>
-          <div>Очки: {score}</div>
-        </div>
-
-        <div className="top-row">
-          <div className="deck-container">
-            <div className="deck-placeholder stock" onClick={drawFromStock}>
-              {stock.length ? <div className="card-back">🃏</div> : <div className="empty-placeholder"></div>}
+        {/* Заголовок и статистика */}
+        <div className="game-header">
+          <h1 className="game-title">Косынка 🃏</h1>
+          <div className="game-stats">
+            <div className="stat-item">
+              <div className="stat-label">Ходы</div>
+              <div className="stat-value">{moves}</div>
             </div>
-            <div
-              className="deck-placeholder waste"
-              onClick={() => {
-                if (!waste.length) return;
-                const card = waste[waste.length - 1];
-                setSelectedStack({ cards: [card], source: { type: "waste" } });
-              }}
-            >
-              {waste.length ? (
-                <div className={`card face-up ${getSuitColor(waste[waste.length - 1].suit)}`}>
-                  <div className="card-rank">{waste[waste.length - 1].rank}</div>
-                  <div className="card-suit">{getSuitSymbol(waste[waste.length - 1].suit)}</div>
-                </div>
-              ) : (
-                <div className="empty-placeholder"></div>
-              )}
+            <div className="stat-item">
+              <div className="stat-label">Время</div>
+              <div className="stat-value">{formatTime(time)}</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-label">Очки</div>
+              <div className="stat-value">{score}</div>
             </div>
           </div>
+        </div>
 
-          <div className="foundations">
-            {suits.map((s) => (
-              <div
-                key={s}
-                className={`foundation ${s}`}
-                onClick={() => handleFoundationClick(s)}
-              >
-                {foundations[s].length ? (
-                  <div className={`card face-up ${getSuitColor(s)}`}>
-                    <div className="card-rank">{foundations[s][foundations[s].length - 1].rank}</div>
-                    <div className="card-suit">{getSuitSymbol(s)}</div>
-                  </div>
+        {/* Основная игровая область */}
+        <div className="game-area">
+          {/* Верхняя зона - колоды и фундаменты */}
+          <div className="top-zone">
+            <div className="deck-container">
+              <div className="deck-placeholder stock" onClick={drawFromStock}>
+                {stock.length ? (
+                  <div className="card card-back">🃏</div>
                 ) : (
-                  <div className="empty-placeholder">{getSuitSymbol(s)}</div>
+                  <div className="empty-placeholder">🂠</div>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
+              <div
+                className="deck-placeholder waste"
+                onClick={() => {
+                  if (!waste.length) return;
+                  const card = waste[waste.length - 1];
+                  setSelectedStack({ cards: [card], source: { type: "waste" } });
+                }}
+              >
+                {waste.length ? (
+                  <div className={`card face-up ${getSuitColor(waste[waste.length - 1].suit)}`}>
+                    <div className="card-rank">{waste[waste.length - 1].rank}</div>
+                    <div className="card-suit">{getSuitSymbol(waste[waste.length - 1].suit)}</div>
+                  </div>
+                ) : (
+                  <div className="empty-placeholder">🂠</div>
+                )}
+              </div>
+            </div>
 
-        <div className="tableau">
-          {tableau.map((col, colIndex) => (
-            <div
-              key={colIndex}
-              className="tableau-column"
-              onClick={() => {
-                if (selectedStack) handleCardClick(col[col.length - 1], colIndex, col.length);
-              }}
-            >
-              {col.length === 0 && <div className="empty-placeholder">🂠</div>}
-              {col.map((card, cardIndex) => (
+            <div className="foundations">
+              {suits.map((suit) => (
                 <div
-                  key={card.id}
-                  className={`card ${card.isFaceUp ? "face-up" : "face-down"} ${getSuitColor(card.suit)} ${
-                    selectedStack && selectedStack.cards.some((c) => c.id === card.id)
-                      ? "selected"
-                      : ""
-                  }`}
-                  style={{ marginTop: cardIndex > 0 ? "-80px" : 0, zIndex: cardIndex }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCardClick(card, colIndex, cardIndex);
-                  }}
+                  key={suit}
+                  className={`foundation ${suit}`}
+                  onClick={() => handleFoundationClick(suit)}
                 >
-                  {card.isFaceUp ? (
-                    <>
-                      <div className="card-rank">{card.rank}</div>
-                      <div className="card-suit">{getSuitSymbol(card.suit)}</div>
-                    </>
+                  {foundations[suit].length ? (
+                    <div className={`card face-up ${getSuitColor(suit)}`}>
+                      <div className="card-rank">{foundations[suit][foundations[suit].length - 1].rank}</div>
+                      <div className="card-suit">{getSuitSymbol(suit)}</div>
+                    </div>
                   ) : (
-                    <div className="card-back">🃏</div>
+                    <div className="empty-placeholder">{getSuitSymbol(suit)}</div>
                   )}
                 </div>
               ))}
             </div>
-          ))}
+          </div>
+
+          {/* Зона tableau с горизонтальной прокруткой */}
+          <div className="tableau-zone">
+            <div className="tableau">
+              {tableau.map((col, colIndex) => (
+                <div
+                  key={colIndex}
+                  className="tableau-column"
+                  onClick={() => {
+                    // Клик на пустую колонку
+                    if (col.length === 0 && selectedStack) {
+                      handleEmptyColumnClick(colIndex);
+                    }
+                  }}
+                >
+                  {col.length === 0 ? (
+                    <div className="empty-placeholder" onClick={() => selectedStack && handleEmptyColumnClick(colIndex)}>🂠</div>
+                  ) : (
+                    col.map((card, cardIndex) => (
+                      <div
+                        key={card.id}
+                        className={`card ${card.isFaceUp ? "face-up" : "face-down"} ${getSuitColor(card.suit)} ${
+                          selectedStack && selectedStack.cards.some((c) => c.id === card.id)
+                            ? "selected"
+                            : ""
+                        }`}
+                        style={{ 
+                          marginTop: cardIndex > 0 ? "-60px" : 0, 
+                          zIndex: cardIndex 
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCardClick(card, colIndex, cardIndex);
+                        }}
+                      >
+                        {card.isFaceUp ? (
+                          <>
+                            <div className="card-rank">{card.rank}</div>
+                            <div className="card-suit">{getSuitSymbol(card.suit)}</div>
+                          </>
+                        ) : (
+                          <div className="card-back">🃏</div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div >
-          <button className="game-button" onClick={dealCards}>Новая игра 🔄</button>
+        {/* Зона управления */}
+        <div className="controls-zone">
+          <div className="game-controls">
+            <button className="game-button" onClick={dealCards}>
+              Новая игра 🔄
+            </button>
+            <Link to="/" className="back-button">
+              ← Назад
+            </Link>
+          </div>
         </div>
-
-        <Link to="/" className="back-button">
-          ← Назад
-        </Link>
       </div>
 
       {showCompliment && (
         <div className="compliment-message show">
+          <div className="message-heart">💖</div>
           <h3>{complimentText}</h3>
         </div>
       )}
