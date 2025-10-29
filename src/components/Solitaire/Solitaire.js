@@ -18,8 +18,11 @@ const Solitaire = () => {
   const [score, setScore] = useState(0);
   const [time, setTime] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-
+  const [gameWon, setGameWon] = useState(false);
   const [selectedStack, setSelectedStack] = useState(null);
+  const [showCompliment, setShowCompliment] = useState(false);
+  const [complimentText, setComplimentText] = useState("");
+
   const compliments = [
     "Отлично! Ты настоящий карточный гений! ♠️",
     "Блестящий ход! ♥️",
@@ -27,22 +30,27 @@ const Solitaire = () => {
     "Молодец! Твои навыки впечатляют! ♣️",
     "Идеально! Ты рождена для этой игры! 💫",
   ];
-  const [showCompliment, setShowCompliment] = useState(false);
-  const [complimentText, setComplimentText] = useState("");
-
   const suits = ["hearts", "diamonds", "clubs", "spades"];
-  const ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
   // --- helpers ---
-  const createDeck = () =>
-    suits.flatMap((suit) =>
-      ranks.map((rank) => ({
-        suit,
-        rank,
-        isFaceUp: false,
-        id: `${suit}-${rank}-${Math.random().toString(36).slice(2, 9)}`,
-      }))
-    );
+  const createDeck = () => {
+    const deck = [];
+    let idCounter = 0;
+    
+    suits.forEach((suit) => {
+      ranks.forEach((rank) => {
+        deck.push({
+          suit,
+          rank,
+          isFaceUp: false,
+          id: `${suit}-${rank}-${idCounter++}`, // Гарантированно уникальный ID
+        });
+      });
+    });
+    
+    return deck;
+  };
 
   const shuffle = (arr) => {
     const a = [...arr];
@@ -62,75 +70,126 @@ const Solitaire = () => {
   };
 
   const isRed = (card) => card.suit === "hearts" || card.suit === "diamonds";
-  const getSuitSymbol = (s) => (
-    {
-      hearts: "♥️",
-      diamonds: "♦️",
-      clubs: "♣️",
-      spades: "♠️"
-    }[s]
-  );
+  
+  const getSuitSymbol = (s) => ({
+    hearts: "♥️",
+    diamonds: "♦️",
+    clubs: "♣️",
+    spades: "♠️"
+  }[s]);
+  
   const getSuitColor = (s) => (s === "hearts" || s === "diamonds" ? "red" : "black");
+
+  // Проверка победы
+  const checkWinCondition = () => {
+    const allFoundationsFull = Object.values(foundations).every(
+      (foundation) => foundation.length === 13
+    );
+    
+    if (allFoundationsFull && !gameWon) {
+      setGameWon(true);
+      setComplimentText("Поздравляю! Ты выиграла! 🎉 Ты настоящая чемпионка! 🌟");
+      setShowCompliment(true);
+      setTimeout(() => setShowCompliment(false), 5000);
+    }
+    
+    return allFoundationsFull;
+  };
 
   // --- game setup ---
   const dealCards = () => {
-    const deck = shuffle(createDeck());
+    let deck = createDeck();
+    deck = shuffle(deck);
+    
     const newTableau = [[], [], [], [], [], [], []];
-    let idx = 0;
+    let deckIndex = 0;
+
+    // Раздача карт в tableau
     for (let col = 0; col < 7; col++) {
       for (let row = 0; row <= col; row++) {
-        const card = { ...deck[idx++] };
-        card.isFaceUp = row === col;
+        const card = { ...deck[deckIndex] };
+        card.isFaceUp = (row === col); // Только последняя карта в колонке открыта
         newTableau[col].push(card);
+        deckIndex++;
       }
     }
+
+    // Оставшиеся карты идут в сток
+    const remainingStock = deck.slice(deckIndex);
+
     setTableau(newTableau);
-    setStock(deck.slice(idx));
+    setStock(remainingStock);
     setWaste([]);
     setFoundations({ hearts: [], diamonds: [], clubs: [], spades: [] });
     setMoves(0);
     setScore(0);
     setTime(0);
     setGameStarted(true);
+    setGameWon(false);
+    setSelectedStack(null);
   };
 
-  useEffect(() => { dealCards(); }, []);
+  useEffect(() => { 
+    dealCards(); 
+  }, []);
+  
   useEffect(() => {
-    let t;
-    if (gameStarted) t = setInterval(() => setTime((s) => s + 1), 1000);
-    return () => clearInterval(t);
-  }, [gameStarted]);
+    let timer;
+    if (gameStarted && !gameWon) {
+      timer = setInterval(() => setTime((s) => s + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [gameStarted, gameWon]);
+
+  // Проверяем победу при изменении foundations
+  useEffect(() => {
+    if (gameStarted) {
+      checkWinCondition();
+    }
+  }, [foundations, gameStarted]);
 
   // --- draw ---
   const drawFromStock = () => {
+    if (gameWon) return;
+    
     if (stock.length > 0) {
       const newStock = [...stock];
       const card = { ...newStock.pop(), isFaceUp: true };
       setWaste([...waste, card]);
       setStock(newStock);
-    } else {
+      setMoves((m) => m + 1);
+    } else if (waste.length > 0) {
+      // Переворачиваем отбой обратно в сток
       setStock([...waste].reverse().map((c) => ({ ...c, isFaceUp: false })));
       setWaste([]);
+      setMoves((m) => m + 1);
     }
-    setMoves((m) => m + 1);
   };
 
   // --- move logic ---
   const canPlaceStackOnTableau = (stackTop, colIndex) => {
     const col = tableau[colIndex];
-    if (!col.length) return stackTop.rank === "K";
+    if (!col.length)
+      return stackTop.rank === "K"; // На пустую колонку можно класть только короля
+    
     const top = col[col.length - 1];
-    return isRed(stackTop) !== isRed(top) && getCardValue(stackTop.rank) === getCardValue(top.rank) - 1;
+    return (
+      isRed(stackTop) !== isRed(top) && 
+      getCardValue(stackTop.rank) === getCardValue(top.rank) - 1
+    );
   };
 
   const canPlaceCardOnFoundation = (card, suit) => {
     if (!card || card.suit !== suit) return false;
     const pile = foundations[suit];
-    if (!pile.length) return card.rank === "A";
-    return getCardValue(card.rank) === getCardValue(pile[pile.length - 1].rank) + 1;
+    if (!pile.length)
+      return card.rank === "A"; // На пустой фундамент можно класть только туза
+    
+    const topCard = pile[pile.length - 1];
+    return getCardValue(card.rank) === getCardValue(topCard.rank) + 1;
   };
 
-  // Функция для проверки валидности стека карт (правильная последовательность)
+  // Функция для проверки валидности стека карт
   const isValidStack = (cards) => {
     if (cards.length <= 1) return true;
     
@@ -138,8 +197,10 @@ const Solitaire = () => {
       const current = cards[i];
       const next = cards[i + 1];
       
-      // Проверяем чередование цветов и последовательность
+      // Проверяем чередование цветов
       if (isRed(current) === isRed(next)) return false;
+      
+      // Проверяем последовательность (текущая должна быть на 1 больше следующей)
       if (getCardValue(current.rank) !== getCardValue(next.rank) + 1) return false;
     }
     
@@ -148,67 +209,70 @@ const Solitaire = () => {
 
   const removeFromSource = (source) => {
     if (!source) return;
+    
     if (source.type === "waste") {
       setWaste((w) => w.slice(0, -1));
       return;
     }
+    
     if (source.type === "tableau") {
       setTableau((t) => {
-        const newT = t.map((col) => [...col]);
-        newT[source.col].splice(source.index);
-        if (newT[source.col].length) {
-          const top = newT[source.col][newT[source.col].length - 1];
-          if (!top.isFaceUp)
-            newT[source.col][newT[source.col].length - 1] = { ...top, isFaceUp: true };
+        const newTableau = t.map((col) => [...col]);
+        // Удаляем карты начиная с source.index
+        newTableau[source.col].splice(source.index);
+        
+        // Открываем последнюю карту в колонке, если она закрыта
+        if (newTableau[source.col].length > 0) {
+          const lastCardIndex = newTableau[source.col].length - 1;
+          const lastCard = newTableau[source.col][lastCardIndex];
+          if (!lastCard.isFaceUp) {
+            newTableau[source.col][lastCardIndex] = { ...lastCard, isFaceUp: true };
+          }
         }
-        return newT;
+        return newTableau;
       });
     }
   };
 
   // Обработчик клика на пустую колонку
   const handleEmptyColumnClick = (colIndex) => {
-    if (selectedStack) {
-      const { cards, source } = selectedStack;
-      const topCard = cards[0];
-      
-      // Проверяем, можно ли поместить карту на пустую колонку (только король)
-      if (topCard.rank === "K") {
-        // Создаем глубокую копию карт для перемещения
-        const cardsToMove = cards.map(card => ({...card}));
-        
-        removeFromSource(source);
-        setTableau((prev) => {
-          const copy = prev.map((c) => [...c]);
-          copy[colIndex] = [...cardsToMove]; // Заменяем пустой массив новыми картами
-          return copy;
-        });
-        setSelectedStack(null);
-        setMoves((m) => m + 1);
-        setScore((s) => s + 5);
-        showRandomCompliment();
-      } else {
-        setSelectedStack(null);
-      }
+    if (gameWon || !selectedStack) return;
+    
+    const { cards, source } = selectedStack;
+    const topCard = cards[0];
+    
+    // На пустую колонку можно класть только короля
+    if (topCard.rank === "K") {
+      removeFromSource(source);
+      setTableau((prev) => {
+        const newTableau = prev.map((col) => [...col]);
+        newTableau[colIndex] = [...cards];
+        return newTableau;
+      });
+      setSelectedStack(null);
+      setMoves((m) => m + 1);
+      setScore((s) => s + 5);
+      showRandomCompliment();
+    } else {
+      setSelectedStack(null);
     }
   };
 
   const handleCardClick = (card, colIndex, cardIndex) => {
-    // если уже выбрана карта — пытаемся переместить
+    if (gameWon) return;
+    
+    // Если уже выбран стек - пытаемся переместить
     if (selectedStack) {
       const { cards, source } = selectedStack;
       const topCard = cards[0];
       
-      // перемещение на колонку (не пустую)
+      // Перемещение на непустую колонку
       if (colIndex !== undefined && canPlaceStackOnTableau(topCard, colIndex)) {
-        // Создаем глубокую копию карт для перемещения
-        const cardsToMove = cards.map(card => ({...card}));
-        
         removeFromSource(source);
         setTableau((prev) => {
-          const copy = prev.map((c) => [...c]);
-          copy[colIndex].push(...cardsToMove);
-          return copy;
+          const newTableau = prev.map((col) => [...col]);
+          newTableau[colIndex].push(...cards);
+          return newTableau;
         });
         setSelectedStack(null);
         setMoves((m) => m + 1);
@@ -216,17 +280,19 @@ const Solitaire = () => {
         showRandomCompliment();
         return;
       }
-      // если не удалось — сброс выбора
+      
+      // Если не удалось - сбрасываем выбор
       setSelectedStack(null);
       return;
     }
 
-    // если карта выбрана впервые
+    // Выбор карты
     if (!card.isFaceUp) return;
-    const col = tableau[colIndex];
-    const cardsToMove = col.slice(cardIndex); // весь стек открытых карт
     
-    // Проверяем, что выбранные карты образуют валидную последовательность
+    const col = tableau[colIndex];
+    const cardsToMove = col.slice(cardIndex);
+    
+    // Проверяем валидность стека
     if (!isValidStack(cardsToMove)) return;
     
     setSelectedStack({
@@ -240,40 +306,46 @@ const Solitaire = () => {
   };
 
   const handleFoundationClick = (suit) => {
-    if (!selectedStack)
-      return;
+    if (gameWon || !selectedStack) return;
 
     const { cards, source } = selectedStack;
+    
+    // На фундамент можно класть только одну карту
     if (cards.length === 1 && canPlaceCardOnFoundation(cards[0], suit)) {
-      // Создаем глубокую копию карты для перемещения
-      const cardToMove = {...cards[0]};
-      
       removeFromSource(source);
-      setFoundations((f) => ({ ...f, [suit]: [...f[suit], cardToMove] }));
+      setFoundations((f) => ({ 
+        ...f, 
+        [suit]: [...f[suit], cards[0]] 
+      }));
       setMoves((m) => m + 1);
       setScore((s) => s + 10);
       showRandomCompliment();
       setSelectedStack(null);
-    }
-    else {
+    } else {
       setSelectedStack(null);
     }
   };
 
+  const handleWasteClick = () => {
+    if (gameWon || waste.length === 0) return;
+    
+    const topCard = waste[waste.length - 1];
+    setSelectedStack({ 
+      cards: [topCard], 
+      source: { type: "waste" } 
+    });
+  };
+
   const showRandomCompliment = (prob = 0.15) => {
-    if (Math.random() > prob)
-      return;
+    if (Math.random() > prob) return;
 
     setComplimentText(compliments[Math.floor(Math.random() * compliments.length)]);
     setShowCompliment(true);
     setTimeout(() => setShowCompliment(false), 3000);
   };
 
-  const formatTime = (s) => `${Math.floor(s / 60)
-    .toString()
-    .padStart(2, "0")}:${(s % 60)
-    .toString()
-    .padStart(2, "0")}`;
+  const formatTime = (s) => 
+    `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
   // --- render ---
   return (
@@ -301,6 +373,13 @@ const Solitaire = () => {
           </div>
         </div>
 
+        {gameWon && (
+          <div className="win-message">
+            <h2>Поздравляем с победой! 🎉</h2>
+            <p>Ты завершила игру за {formatTime(time)} и {moves} ходов!</p>
+          </div>
+        )}
+
         {/* Основная игровая область */}
         <div className="game-area">
           {/* Верхняя зона - колоды и фундаменты */}
@@ -315,14 +394,12 @@ const Solitaire = () => {
               </div>
               <div
                 className="deck-placeholder waste"
-                onClick={() => {
-                  if (!waste.length) return;
-                  const card = waste[waste.length - 1];
-                  setSelectedStack({ cards: [card], source: { type: "waste" } });
-                }}
+                onClick={handleWasteClick}
               >
                 {waste.length ? (
-                  <div className={`card face-up ${getSuitColor(waste[waste.length - 1].suit)}`}>
+                  <div className={`card face-up ${getSuitColor(waste[waste.length - 1].suit)} ${
+                    selectedStack && selectedStack.source.type === "waste" ? "selected" : ""
+                  }`}>
                     <div className="card-rank">{waste[waste.length - 1].rank}</div>
                     <div className="card-suit">{getSuitSymbol(waste[waste.length - 1].suit)}</div>
                   </div>
@@ -341,7 +418,9 @@ const Solitaire = () => {
                 >
                   {foundations[suit].length ? (
                     <div className={`card face-up ${getSuitColor(suit)}`}>
-                      <div className="card-rank">{foundations[suit][foundations[suit].length - 1].rank}</div>
+                      <div className="card-rank">
+                        {foundations[suit][foundations[suit].length - 1].rank}
+                      </div>
                       <div className="card-suit">{getSuitSymbol(suit)}</div>
                     </div>
                   ) : (
@@ -352,7 +431,7 @@ const Solitaire = () => {
             </div>
           </div>
 
-          {/* Зона tableau с горизонтальной прокруткой */}
+          {/* Зона tableau */}
           <div className="tableau-zone">
             <div className="tableau">
               {tableau.map((col, colIndex) => (
@@ -360,14 +439,13 @@ const Solitaire = () => {
                   key={colIndex}
                   className="tableau-column"
                   onClick={() => {
-                    // Клик на пустую колонку
                     if (col.length === 0 && selectedStack) {
                       handleEmptyColumnClick(colIndex);
                     }
                   }}
                 >
                   {col.length === 0 ? (
-                    <div className="empty-placeholder" onClick={() => selectedStack && handleEmptyColumnClick(colIndex)}>🂠</div>
+                    <div className="empty-placeholder">🂠</div>
                   ) : (
                     col.map((card, cardIndex) => (
                       <div
